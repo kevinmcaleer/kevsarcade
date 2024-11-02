@@ -15,6 +15,6 @@ The script is designed to work with the following hardware:
 ## Installation
 
 1. Install CircuitPython on the Raspberry Pi Pico
-2. Copy the `code.py` file to the Pico
+2. Copy the `code.py` file to the Pico - this will automatically run when the Pico is connected to a computer
 
 ---
