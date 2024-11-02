@@ -21,4 +21,6 @@ The script is designed to work with the following hardware:
 5. Connect the joystick and buttons to the Pico as shown in the [`wiring.jpg`](wiring.jpg) file
 6. Connect the Pico to the Raspberry Pi using a USB cable
 
+![Wiring diagram](wiring.jpg)
+
 ---
