@@ -15,13 +15,9 @@ gamepad = Gamepad(devices=usb_hid.devices)
 x_axis = AnalogIn(board.A0)
 y_axis = AnalogIn(board.A1)
 
-# Arcade buttons
-# button_1 = digitalio.DigitalInOut(board.GP0)
-# button_1.switch_to_input(pull=digitalio.Pull.UP)
-# button_2 = digitalio.DigitalInOut(board.GP1)
-# button_2.switch_to_input(pull=digitalio.Pull.UP)
-# button_3 = digitalio.DigitalInOut(board.GP2)
-# button_3.switch_to_input(pull=digitalio.Pull.UP)
+CENTER_X = 53000
+CENTER_Y = 52000
+DEADZONE = 1800 # Deadzone around the center for stability
 
 button_pins = (board.GP0, board.GP1, board.GP2)
 gamepad_buttons = (1, 2, 3)
@@ -33,8 +29,15 @@ for button in buttons:
 
 
 # Function to scale analog values (from 0-65535) to a smaller range
-def scale_axis(value):
-    return int((value - 32768) / 500)  # Adjust divisor for sensitivity
+def scale_axis(value, center):
+    if abs(value - center) < DEADZONE:
+        return 0 # stay at zero within dead zone
+    elif value < center:
+        # Map lower half to -127
+        return int(((value - center) / (center - 0)) * 127)
+    else:
+        # Map upper half to +127
+        return int(((value - center) / (65535 - center)) * 127)  
 
 # Equivalent of Arduino's map() function.
 def range_map(x, in_min, in_max, out_min, out_max):
@@ -43,13 +46,7 @@ def range_map(x, in_min, in_max, out_min, out_max):
 
 
 while True:
-    # Read and scale joystick values
-#     x_val = scale_axis(x_axis.value)
-#     y_val = scale_axis(y_axis.value)
-
-    # Move the gamepad based on joystick position
-#     gamepad.move_joysticks(x=x_val, y=y_val)
-
+    # Read and scale values, adjusting for deadzone and center
     for i, button in enumerate(buttons):
         gamepad_button_num = gamepad_buttons[i]
         if button.value:
@@ -60,9 +57,11 @@ while True:
             print(" press", gamepad_button_num, end="")
 
     # Convert range[0, 65535] to -127 to 127
+    x = scale_axis(x_axis.value, CENTER_X)
+    y = scale_axis(y_axis.value, CENTER_Y)
     gamepad.move_joysticks(
-        x=range_map(x_axis.value, 0, 65535, -127, 127),
-        y=range_map(y_axis.value, 0, 65535, -127, 127),
+        x = x,
+        y = y,
     )
-    print(" x", x_axis.value, "y", y_axis.value)
+    print(" x", x, "y", y)
     time.sleep(0.1)
