@@ -15,14 +15,9 @@ gamepad = Gamepad(devices=usb_hid.devices)
 x_axis = AnalogIn(board.A0)
 y_axis = AnalogIn(board.A1)
 
-CENTER_X = 53000
-CENTER_Y = 53000
+CENTER_X = 64000 #53000
+CENTER_Y = 64000 #52000
 DEADZONE = 1800 # Deadzone around the center for stability
-
-# Initialize previous values for filtering
-prev_x = 0
-prev_y = 0
-ALPHA = 0.7  # Smoothing factor, closer to 1 is smoother but more lagged
 
 button_pins = (board.GP0, board.GP1, board.GP2)
 gamepad_buttons = (1, 2, 3)
@@ -64,17 +59,9 @@ while True:
     # Convert range[0, 65535] to -127 to 127
     x = scale_axis(x_axis.value, CENTER_X)
     y = scale_axis(y_axis.value, CENTER_Y)
-    
-    # Apply filtering
-    filtered_x = int(ALPHA * prev_x + (1 - ALPHA) * x)
-    filtered_y = int(ALPHA * prev_y + (1 - ALPHA) * y)
-    
-    prev_x = filtered_x
-    prev_y = filtered_y
-    
     gamepad.move_joysticks(
-        x = filtered_x,
-        y = filtered_y,
+        x = x,
+        y = y,
     )
-    print(" x", filtered_x, "y", filtered_y)
-    time.sleep(0.01)
+    print(" x", x, "y", y)
+    time.sleep(0.1)
